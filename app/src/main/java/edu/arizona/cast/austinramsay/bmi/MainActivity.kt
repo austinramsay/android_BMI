@@ -72,6 +72,7 @@ class MainActivity : AppCompatActivity() {
                 // Provide the view model with the extracted info
                 bmiViewModel.updateBMI(heightFt, heightIn, weightLbs)
 
+                // Update UI with model data
                 syncResults()
             }
 
@@ -100,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         statusText.setTextColor(bmiViewModel.bmiStatusColor)
 
         // BMI index updates
-        indexText.text = String.format("BMI Index: %s", bmiViewModel.bmiIndex)
+        indexText.text = bmiViewModel.bmiIndexText
     }
 
     // Sync all UI fields to the ViewModel's stored data
