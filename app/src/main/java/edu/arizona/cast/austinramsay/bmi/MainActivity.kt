@@ -1,5 +1,6 @@
 package edu.arizona.cast.austinramsay.bmi
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -92,17 +93,24 @@ class MainActivity : AppCompatActivity() {
         syncAll()
     }
 
-    // Set the BMI status text view result using the calculated status
+    // Sync the UI result fields to the ViewModel's stored data
     private fun syncResults() {
+        // BMI status updates
         statusText.text = bmiViewModel.bmiStatus
-        indexText.text = bmiViewModel.bmiIndex
+        statusText.setTextColor(bmiViewModel.bmiStatusColor)
+
+        // BMI index updates
+        indexText.text = String.format("BMI Index: %s", bmiViewModel.bmiIndex)
     }
 
-    // Set all input fields and and result values from the model's properties
+    // Sync all UI fields to the ViewModel's stored data
     private fun syncAll() {
+        // Set the input fields to stored values
         heightFtInput.setText(bmiViewModel.heightFt)
         heightInInput.setText(bmiViewModel.heightIn)
         weightInput.setText(bmiViewModel.weightLbs)
+
+        // Set result fields to stored values
         syncResults()
     }
 }

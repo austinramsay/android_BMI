@@ -1,5 +1,6 @@
 package edu.arizona.cast.austinramsay.bmi
 
+import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import java.text.DecimalFormat
@@ -13,6 +14,7 @@ class BMIViewModel : ViewModel() {
     var weightLbs: String? = null
     var bmiIndex: String? = null
     var bmiStatus: String? = null
+    var bmiStatusColor: Int = Color.GREEN
 
     fun updateBMI(height_ft: String, height_in: String, weight_lbs: String) {
 
@@ -25,6 +27,13 @@ class BMIViewModel : ViewModel() {
             val bmi = BMI(height_ft.toInt(), height_in.toInt(), weight_lbs.toInt())
 
             this.bmiStatus = bmi.status
+            if (this.bmiStatus == BMI.STATUS_NORMAL) {
+                bmiStatusColor = Color.GREEN
+            } else if (this.bmiStatus == BMI.STATUS_UNDERWEIGHT || this.bmiStatus == BMI.STATUS_OVERWEIGHT) {
+                bmiStatusColor = Color.rgb(185,175,0)
+            } else if (this.bmiStatus == BMI.STATUS_OBESE) {
+                bmiStatusColor = Color.RED
+            }
 
             // Set the BMI index text view using formatted output of the BMI index calculation
             val df = DecimalFormat("#.0")
