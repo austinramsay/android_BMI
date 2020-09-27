@@ -12,11 +12,12 @@ class BMIViewModel : ViewModel() {
     var heightFt: String? = null
     var heightIn: String? = null
     var weightLbs: String? = null
-    var bmiIndex: String? = null
+    var bmiIndex: Double? = null
+    var bmiIndexText: String? = null
     var bmiStatus: String? = null
     var bmiStatusColor: Int = Color.GREEN
 
-    fun updateBMI(height_ft: String, height_in: String, weight_lbs: String) {
+    fun update(height_ft: String, height_in: String, weight_lbs: String) {
 
         this.heightFt = height_ft
         this.heightIn = height_in
@@ -36,8 +37,9 @@ class BMIViewModel : ViewModel() {
             }
 
             // Set the BMI index text view using formatted output of the BMI index calculation
+            bmiIndex = bmi.index
             val df = DecimalFormat("#.0")
-            this.bmiIndex = df.format(bmi.index)
+            this.bmiIndexText = String.format("BMI Index: %s", df.format(bmiIndex))
 
         } catch (e: NumberFormatException) {
             Log.d(TAG, "NumberFormatException occurred with BMI input values.")
