@@ -1,5 +1,6 @@
 package edu.arizona.cast.austinramsay.bmi
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +16,7 @@ private const val KEY_INDEX = "index"
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var bmiCalcButton: Button
+    private lateinit var calcButton: Button
     private lateinit var clrButton: Button
     private lateinit var rateCalcButton: Button
     private lateinit var heightFtInput: EditText
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Got the BMIViewModel: $bmiViewModel.")
 
         // Get all required buttons, input fields, and text views
-        bmiCalcButton = findViewById(R.id.calc_button)
+        calcButton = findViewById(R.id.calc_button)
         clrButton = findViewById(R.id.clr_button)
         rateCalcButton = findViewById(R.id.rate_calc_button)
         heightFtInput = findViewById(R.id.ft_input)
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         indexText = findViewById(R.id.bmi_index)
 
         // Set the calculate button listener
-        bmiCalcButton.setOnClickListener {
+        calcButton.setOnClickListener {
 
             // Extract all input fields for required info (height and weight)
             val heightFt = heightFtInput.text.toString()
@@ -79,7 +80,8 @@ class MainActivity : AppCompatActivity() {
 
         // Heart Rate calculator button - switch to new activity
         rateCalcButton.setOnClickListener {
-
+            val intent = Intent(this, HeartRateActivity::class.java)
+            startActivity(intent)
         }
 
         // Clear button should set all input fields and output text views to empty
