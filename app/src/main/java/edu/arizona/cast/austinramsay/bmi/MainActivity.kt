@@ -1,6 +1,5 @@
 package edu.arizona.cast.austinramsay.bmi
 
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -40,8 +39,8 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Got the BMIViewModel: $bmiViewModel.")
 
         // Get all required buttons, input fields, and text views
-        bmiCalcButton = findViewById(R.id.bmi_calc_button)
-        clrButton = findViewById(R.id.bmi_clr_button)
+        bmiCalcButton = findViewById(R.id.calc_button)
+        clrButton = findViewById(R.id.clr_button)
         rateCalcButton = findViewById(R.id.rate_calc_button)
         heightFtInput = findViewById(R.id.ft_input)
         heightInInput = findViewById(R.id.in_input)
@@ -70,11 +69,16 @@ class MainActivity : AppCompatActivity() {
             } else {
 
                 // Provide the view model with the extracted info
-                bmiViewModel.updateBMI(heightFt, heightIn, weightLbs)
+                bmiViewModel.update(heightFt, heightIn, weightLbs)
 
                 // Update UI with model data
                 syncResults()
             }
+
+        }
+
+        // Heart Rate calculator button - switch to new activity
+        rateCalcButton.setOnClickListener {
 
         }
 
@@ -86,9 +90,6 @@ class MainActivity : AppCompatActivity() {
             statusText.text = null
             indexText.text = null
         }
-
-        // Heart rate calculate button is disabled for now
-        rateCalcButton.isEnabled = false
 
         // Sync to the model's information if the activity was recreated or is new
         syncAll()
