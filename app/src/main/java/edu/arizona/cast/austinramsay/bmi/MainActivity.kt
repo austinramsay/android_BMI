@@ -1,6 +1,8 @@
 package edu.arizona.cast.austinramsay.bmi
 
-import android.graphics.Color
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,10 +15,11 @@ import androidx.lifecycle.ViewModelProvider
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
+private const val REQUEST_AGE = 0
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var bmiCalcButton: Button
+    private lateinit var calcButton: Button
     private lateinit var clrButton: Button
     private lateinit var rateCalcButton: Button
     private lateinit var heightFtInput: EditText
@@ -40,8 +43,8 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Got the BMIViewModel: $bmiViewModel.")
 
         // Get all required buttons, input fields, and text views
-        bmiCalcButton = findViewById(R.id.bmi_calc_button)
-        clrButton = findViewById(R.id.bmi_clr_button)
+        calcButton = findViewById(R.id.calc_button)
+        clrButton = findViewById(R.id.clr_button)
         rateCalcButton = findViewById(R.id.rate_calc_button)
         heightFtInput = findViewById(R.id.ft_input)
         heightInInput = findViewById(R.id.in_input)
@@ -50,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         indexText = findViewById(R.id.bmi_index)
 
         // Set the calculate button listener
-        bmiCalcButton.setOnClickListener {
+        calcButton.setOnClickListener {
 
             // Extract all input fields for required info (height and weight)
             val heightFt = heightFtInput.text.toString()
@@ -70,11 +73,22 @@ class MainActivity : AppCompatActivity() {
             } else {
 
                 // Provide the view model with the extracted info
-                bmiViewModel.updateBMI(heightFt, heightIn, weightLbs)
+                bmiViewModel.update(heightFt, heightIn, weightLbs)
 
+                // Update UI with model data
                 syncResults()
             }
 
+        }
+
+        // Heart Rate calculator button - switch to new activity
+        rateCalcButton.setOnClickListener {
+            // If the BMI ViewModel contains a saved age returned from the heart calculator previously,
+            // then send the saved age into the heart rate activity to restore it.
+            val savedAge = bmiViewModel.age ?: ""
+
+            val intent = HeartRateActivity.newIntent(this@MainActivity, savedAge)
+            startActivityForResult(intent, REQUEST_AGE)
         }
 
         // Clear button should set all input fields and output text views to empty
@@ -86,11 +100,24 @@ class MainActivity : AppCompatActivity() {
             indexText.text = null
         }
 
-        // Heart rate calculate button is disabled for now
-        rateCalcButton.isEnabled = false
-
         // Sync to the model's information if the activity was recreated or is new
         syncAll()
+    }
+
+    // Upon the heart rate calculator activity completing, determine if the user entered an age
+    // and calculated a result. If so, we can extract that age from the intent extra.
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode != Activity.RESULT_OK) {
+            // Nothing to be done, age wasn't set
+            return
+        }
+
+        if (requestCode == REQUEST_AGE) {
+            // Rate was calculated with an age input, extract the age that was set
+            bmiViewModel.age = data?.getStringExtra(EXTRA_AGE_SET)
+        }
     }
 
     // Sync the UI result fields to the ViewModel's stored data
@@ -100,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         statusText.setTextColor(bmiViewModel.bmiStatusColor)
 
         // BMI index updates
-        indexText.text = String.format("BMI Index: %s", bmiViewModel.bmiIndex)
+        indexText.text = bmiViewModel.bmiIndexText
     }
 
     // Sync all UI fields to the ViewModel's stored data
