@@ -15,6 +15,7 @@ class BMIViewModel : ViewModel() {
     var bmiIndex: Double? = null
     var bmiIndexText: String? = null
     var bmiStatus: String? = null
+    var age: String? = null
     var bmiStatusColor: Int = Color.GREEN
 
     fun update(height_ft: String, height_in: String, weight_lbs: String) {

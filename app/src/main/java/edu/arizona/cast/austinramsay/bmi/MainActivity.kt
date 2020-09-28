@@ -1,5 +1,7 @@
 package edu.arizona.cast.austinramsay.bmi
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
+private const val REQUEST_AGE = 0
 
 class MainActivity : AppCompatActivity() {
 
@@ -80,8 +83,12 @@ class MainActivity : AppCompatActivity() {
 
         // Heart Rate calculator button - switch to new activity
         rateCalcButton.setOnClickListener {
-            val intent = Intent(this, HeartRateActivity::class.java)
-            startActivity(intent)
+            // If the BMI ViewModel contains a saved age returned from the heart calculator previously,
+            // then send the saved age into the heart rate activity to restore it.
+            val savedAge = bmiViewModel.age ?: ""
+
+            val intent = HeartRateActivity.newIntent(this@MainActivity, savedAge)
+            startActivityForResult(intent, REQUEST_AGE)
         }
 
         // Clear button should set all input fields and output text views to empty
@@ -95,6 +102,22 @@ class MainActivity : AppCompatActivity() {
 
         // Sync to the model's information if the activity was recreated or is new
         syncAll()
+    }
+
+    // Upon the heart rate calculator activity completing, determine if the user entered an age
+    // and calculated a result. If so, we can extract that age from the intent extra.
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode != Activity.RESULT_OK) {
+            // Nothing to be done, age wasn't set
+            return
+        }
+
+        if (requestCode == REQUEST_AGE) {
+            // Rate was calculated with an age input, extract the age that was set
+            bmiViewModel.age = data?.getStringExtra(EXTRA_AGE_SET)
+        }
     }
 
     // Sync the UI result fields to the ViewModel's stored data

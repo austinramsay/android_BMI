@@ -1,5 +1,8 @@
 package edu.arizona.cast.austinramsay.bmi
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 
 private const val TAG = "HeartRateActivity"
+const val EXTRA_AGE_SET = "edu.arizona.cast.austinramsay.bmi.age_set"
 
 class HeartRateActivity : AppCompatActivity() {
 
@@ -21,11 +25,21 @@ class HeartRateActivity : AppCompatActivity() {
     private lateinit var heartRateMaxResult: TextView
     private lateinit var heartRateTargetResult: TextView
 
+    // Provide a static function to return an intent for this Activity with needed extras
+    companion object {
+        fun newIntent(packageContext: Context, age: String): Intent {
+            return Intent(packageContext, HeartRateActivity::class.java).apply {
+                putExtra(EXTRA_AGE_SET, age)
+            }
+        }
+    }
+
     // Prepare ViewModel
     private val heartRateViewModel: HeartRateViewModel by lazy {
         ViewModelProviders.of(this).get(HeartRateViewModel::class.java)
     }
 
+    // Activity created, handle UI logic and event handlers
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_rate)
@@ -64,8 +78,11 @@ class HeartRateActivity : AppCompatActivity() {
                 // Provide the view model with the extracted info
                 heartRateViewModel.update(age.toInt())
 
-                // Update UI with model data
+                // Update result fields with model data
                 syncResults()
+
+                // Set the result for the parent activity (BMI Activity)
+                setAgeResult(age)
             }
         }
 
@@ -77,10 +94,20 @@ class HeartRateActivity : AppCompatActivity() {
         }
 
         returnBmiButton.setOnClickListener {
+            // Close the activity
             finish()
         }
 
+        // Sync all fields to ViewModel
         syncAll()
+    }
+
+    private fun setAgeResult(age: String) {
+        val data = Intent().apply {
+            putExtra(EXTRA_AGE_SET, age)
+        }
+
+        setResult(Activity.RESULT_OK, data)
     }
 
     // Sync the UI result fields to the ViewModel's stored data
@@ -96,12 +123,21 @@ class HeartRateActivity : AppCompatActivity() {
     // Sync all UI fields to the ViewModel's stored data
     private fun syncAll() {
         // Set the input fields to stored values
-        ageInput.setText(
-            if (heartRateViewModel.age == null)
-                null
-            else
-                heartRateViewModel.age.toString()
-        )
+
+        // If the HeartRateViewModel doesn't have an age stored from a previous calculation,
+        // attempt to extract one that was passed in by the parent activity
+        var age: String? = null
+        if (heartRateViewModel.age == null) {
+            // Get the age sent by the MainActivity if exists
+            val savedAge = intent.getStringExtra(EXTRA_AGE_SET)
+            if (!savedAge.isNullOrBlank()) {
+                age = savedAge
+            }
+        } else {
+            age = heartRateViewModel.age.toString()
+        }
+
+        ageInput.setText(age)
 
         // Set result fields to stored values
         syncResults()
